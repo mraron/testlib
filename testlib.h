@@ -2593,6 +2593,10 @@ static std::string __testlib_toPrintableMessage(const std::string &message) {
     return message;
 }
 
+#ifdef FELADAT
+std::string __testind;
+#endif
+
 NORETURN void InStream::quit(TResult result, const char *msg) {
     if (TestlibFinalizeGuard::alive)
         testlibFinalizeGuard.quitCount++;
@@ -2641,7 +2645,9 @@ NORETURN void InStream::quit(TResult result, const char *msg) {
 
     int pctype = result - _partially;
     bool isPartial = false;
-
+#ifdef FELADAT
+	std::cout<<__testind<<";1;"<<(!result)<<";"<<msg<<"\n";
+#endif
     switch (result) {
         case _ok:
             errorName = "ok ";
@@ -3955,10 +3961,13 @@ NORETURN void __testlib_help() {
         std::fprintf(stderr, "*) %s\n", latestFeatures[i]);
     }
     std::fprintf(stderr, "\n");
-
+	#ifdef FELADAT
+	std::fprintf(stderr, "Program must be run with the following arguments: \n");
+    std::fprintf(stderr, "    <problem-dir> <output-dir> <test-ind>\n\n");
+	#else
     std::fprintf(stderr, "Program must be run with the following arguments: \n");
     std::fprintf(stderr, "    <input-file> <output-file> <answer-file> [<report-file> [<-appes>]]\n\n");
-
+	#endif
     std::exit(FAIL_EXIT_CODE);
 }
 
@@ -4141,9 +4150,15 @@ void registerTestlibCmd(int argc, char *argv[]) {
         __testlib_help();
 
     if (argc < 4 || argc > 6) {
+	#ifdef FELADAT
         quit(_fail, std::string("Program must be run with the following arguments: ") +
+                    std::string("<problem-dir> <output-dir> <test-ind>") +
+                    "\nUse \"--help\" to get help information");
+    #else
+		quit(_fail, std::string("Program must be run with the following arguments: ") +
                     std::string("<input-file> <output-file> <answer-file> [<report-file> [<-appes>]]") +
                     "\nUse \"--help\" to get help information");
+    #endif
     }
 
     if (argc == 4) {
@@ -4165,10 +4180,19 @@ void registerTestlibCmd(int argc, char *argv[]) {
             appesMode = true;
         }
     }
-
+	#ifdef FELADAT
+	std::stringstream format;
+	
+	format<<argv[1]<<"/in."<<argv[3];inf.init(format.str().c_str(), _input);format.str("");
+	format<<argv[2]<<"/out."<<argv[3];ouf.init(format.str().c_str(), _output);format.str("");
+	format<<argv[1]<<"/out."<<argv[3];ans.init(format.str().c_str(), _answer);format.str("");
+	
+	__testind=argv[3];
+	#else
     inf.init(argv[1], _input);
     ouf.init(argv[2], _output);
     ans.init(argv[3], _answer);
+    #endif
 }
 
 void registerTestlib(int argc, ...) {
