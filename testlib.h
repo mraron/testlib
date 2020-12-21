@@ -2884,11 +2884,19 @@ char InStream::readChar(char c) {
     char found = readChar();
     if (c != found) {
         if (!isEoln(found))
+        #ifdef FELADAT
+			quit(_pe, "Hibás válasz");
+		#else
             quit(_pe, ("Unexpected character '" + std::string(1, found) + "', but '" + std::string(1, c) +
                        "' expected").c_str());
+        #endif
         else
+        #ifdef FELADAT
+			quit(_pe, "Hibás válasz");
+		#else
             quit(_pe, ("Unexpected character " + ("#" + vtos(int(found))) + ", but '" + std::string(1, c) +
                        "' expected").c_str());
+        #endif
     }
     return found;
 }
@@ -2923,10 +2931,18 @@ void InStream::readWordTo(std::string &result) {
     int cur = reader->nextChar();
 
     if (cur == EOFC)
-        quit(_unexpected_eof, "Unexpected end of file - token expected");
+		#ifdef FELADAT
+			quit(_pe, "Hibás válasz");
+		#else
+			quit(_unexpected_eof, "Unexpected end of file - token expected");
+		#endif
 
     if (isBlanks(cur))
-        quit(_pe, "Unexpected white-space - token expected");
+		#ifdef FELADAT
+			quit(_pe, "Hibás válasz");
+		#else
+			quit(_pe, "Unexpected white-space - token expected");
+		#endif
 
     result.clear();
 
@@ -3166,12 +3182,20 @@ static inline double stringToDouble(InStream &in, const char *buffer) {
             if (buffer[i] == '.')
                 decimalPointCount++;
         } else
+        #ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
             in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+        #endif
     }
 
     // If for sure is not a number in standard notation or in e-notation.
     if (digitCount == 0 || minusCount > 2 || plusCount > 2 || decimalPointCount > 1 || eCount > 1)
-        in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 
     char *suffix = new char[length + 1];
     std::memset(suffix, 0, length + 1);
@@ -3181,53 +3205,93 @@ static inline double stringToDouble(InStream &in, const char *buffer) {
 
     if (scanned == 1 || (scanned == 2 && empty)) {
         if (__testlib_isNaN(retval))
+        #ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
             in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+        #endif
         return retval;
     } else
-        in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 }
 
 static inline double
 stringToStrictDouble(InStream &in, const char *buffer, int minAfterPointDigitCount, int maxAfterPointDigitCount) {
     if (minAfterPointDigitCount < 0)
-        in.quit(_fail, "stringToStrictDouble: minAfterPointDigitCount should be non-negative.");
+		#ifdef FELADAT
+			in.quit(_pe, "Belső hiba");
+		#else
+			in.quit(_fail, "stringToStrictDouble: minAfterPointDigitCount should be non-negative.");
+		#endif
 
     if (minAfterPointDigitCount > maxAfterPointDigitCount)
-        in.quit(_fail,
+		#ifdef FELADAT
+			in.quit(_pe, "Belső hiba");
+		#else
+			in.quit(_fail,
                 "stringToStrictDouble: minAfterPointDigitCount should be less or equal to maxAfterPointDigitCount.");
+        #endif
 
     double retval;
 
     size_t length = strlen(buffer);
 
     if (length == 0 || length > 1000)
-        in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+        #endif
 
     if (buffer[0] != '-' && (buffer[0] < '0' || buffer[0] > '9'))
-        in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 
     int pointPos = -1;
     for (size_t i = 1; i + 1 < length; i++) {
         if (buffer[i] == '.') {
             if (pointPos > -1)
-                in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+				#ifdef FELADAT
+					in.quit(_pe, "Hibás válasz");
+				#else
+					in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+                #endif
             pointPos = int(i);
         }
         if (buffer[i] != '.' && (buffer[i] < '0' || buffer[i] > '9'))
-            in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+			#ifdef FELADAT
+				in.quit(_pe, "Hibás válasz");
+			#else
+				in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+			#endif
     }
 
     if (buffer[length - 1] < '0' || buffer[length - 1] > '9')
-        in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 
     int afterDigitsCount = (pointPos == -1 ? 0 : int(length) - pointPos - 1);
     if (afterDigitsCount < minAfterPointDigitCount || afterDigitsCount > maxAfterPointDigitCount)
-        in.quit(_pe, ("Expected strict double with number of digits after point in range ["
+        #ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected strict double with number of digits after point in range ["
                       + vtos(minAfterPointDigitCount)
                       + ","
                       + vtos(maxAfterPointDigitCount)
                       + "], but \"" + __testlib_part(buffer) + "\" found").c_str()
         );
+        #endif
 
     int firstDigitPos = -1;
     for (size_t i = 0; i < length; i++)
@@ -3237,11 +3301,18 @@ stringToStrictDouble(InStream &in, const char *buffer, int minAfterPointDigitCou
         }
 
     if (firstDigitPos > 1 || firstDigitPos == -1)
-        in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
-
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
     if (buffer[firstDigitPos] == '0' && firstDigitPos + 1 < int(length)
         && buffer[firstDigitPos + 1] >= '0' && buffer[firstDigitPos + 1] <= '9')
-        in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+        #ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected strict double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 
     char *suffix = new char[length + 1];
     std::memset(suffix, 0, length + 1);
@@ -3251,12 +3322,24 @@ stringToStrictDouble(InStream &in, const char *buffer, int minAfterPointDigitCou
 
     if (scanned == 1 || (scanned == 2 && empty)) {
         if (__testlib_isNaN(retval) || __testlib_isInfinite(retval))
-            in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+			#ifdef FELADAT
+				in.quit(_pe, "Hibás válasz");
+			#else
+				in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+			#endif
         if (buffer[0] == '-' && retval >= 0)
-            in.quit(_pe, ("Redundant minus in \"" + __testlib_part(buffer) + "\" found").c_str());
+			#ifdef FELADAT
+				in.quit(_pe, "Hibás válasz");
+			#else
+				in.quit(_pe, ("Redundant minus in \"" + __testlib_part(buffer) + "\" found").c_str());
+			#endif
         return retval;
     } else
-        in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 }
 
 static inline long long stringToLongLong(InStream &in, const char *buffer) {
@@ -3270,7 +3353,11 @@ static inline long long stringToLongLong(InStream &in, const char *buffer) {
         minus = true;
 
     if (length > 20)
-        in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 
     long long retval = 0LL;
 
@@ -3284,15 +3371,27 @@ static inline long long stringToLongLong(InStream &in, const char *buffer) {
             processingZeroes = false;
 
         if (buffer[i] < '0' || buffer[i] > '9')
-            in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+			#ifdef FELADAT
+				in.quit(_pe, "Hibás válasz");
+			#else
+				in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+            #endif
         retval = retval * 10 + (buffer[i] - '0');
     }
 
     if (retval < 0)
-        in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 
     if ((zeroes > 0 && (retval != 0 || minus)) || zeroes > 1)
-        in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 
     retval = (minus ? -retval : +retval);
 
@@ -3302,21 +3401,37 @@ static inline long long stringToLongLong(InStream &in, const char *buffer) {
     if (equals(retval, buffer))
         return retval;
     else
-        in.quit(_pe, ("Expected int64, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected int64, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 }
 
 static inline unsigned long long stringToUnsignedLongLong(InStream &in, const char *buffer) {
     size_t length = strlen(buffer);
 
     if (length > 20)
-        in.quit(_pe, ("Expected unsigned integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected unsigned integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
     if (length > 1 && buffer[0] == '0')
-        in.quit(_pe, ("Expected unsigned integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected unsigned integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 
     unsigned long long retval = 0LL;
     for (int i = 0; i < int(length); i++) {
         if (buffer[i] < '0' || buffer[i] > '9')
-            in.quit(_pe, ("Expected unsigned integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+			#ifdef FELADAT
+				in.quit(_pe, "Hibás válasz");
+			#else
+				in.quit(_pe, ("Expected unsigned integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+			#endif
         retval = retval * 10 + (buffer[i] - '0');
     }
 
@@ -3324,12 +3439,20 @@ static inline unsigned long long stringToUnsignedLongLong(InStream &in, const ch
         return retval;
 
     if (length == 20 && strcmp(buffer, "18446744073709551615") > 0)
-        in.quit(_pe, ("Expected unsigned int64, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected unsigned int64, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 
     if (equals(retval, buffer))
         return retval;
     else
-        in.quit(_pe, ("Expected unsigned int64, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#ifdef FELADAT
+			in.quit(_pe, "Hibás válasz");
+		#else
+			in.quit(_pe, ("Expected unsigned int64, but \"" + __testlib_part(buffer) + "\" found").c_str());
+		#endif
 }
 
 int InStream::readInteger() {
@@ -3456,19 +3579,35 @@ int InStream::readInt(int minv, int maxv, const std::string &variableName) {
     if (result < minv || result > maxv) {
         if (readManyIteration == NO_INDEX) {
             if (variableName.empty())
+            #ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa, ("Integer " + vtos(result) + " violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) +
                            "]").c_str());
+            #endif
             else
+            #ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa, ("Integer parameter [name=" + std::string(variableName) + "] equals to " + vtos(result) +
                            ", violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) + "]").c_str());
+            #endif
         } else {
             if (variableName.empty())
+            #ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa, ("Integer element [index=" + vtos(readManyIteration) + "] equals to " + vtos(result) +
                            ", violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) + "]").c_str());
+            #endif
             else
+            #ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa,
                      ("Integer element " + std::string(variableName) + "[" + vtos(readManyIteration) + "] equals to " +
                       vtos(result) + ", violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) + "]").c_str());
+            #endif
         }
     }
 
