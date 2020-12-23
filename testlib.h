@@ -3492,19 +3492,35 @@ long long InStream::readLong(long long minv, long long maxv, const std::string &
     if (result < minv || result > maxv) {
         if (readManyIteration == NO_INDEX) {
             if (variableName.empty())
+            #ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa, ("Integer " + vtos(result) + " violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) +
                            "]").c_str());
+            #endif
             else
+            #ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa, ("Integer parameter [name=" + std::string(variableName) + "] equals to " + vtos(result) +
                            ", violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) + "]").c_str());
+            #endif
         } else {
             if (variableName.empty())
+            #ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa, ("Integer element [index=" + vtos(readManyIteration) + "] equals to " + vtos(result) +
                            ", violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) + "]").c_str());
+            #endif
             else
+            #ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa,
                      ("Integer element " + std::string(variableName) + "[" + vtos(readManyIteration) + "] equals to " +
                       vtos(result) + ", violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) + "]").c_str());
+            #endif
         }
     }
 
@@ -3530,22 +3546,38 @@ InStream::readUnsignedLong(unsigned long long minv, unsigned long long maxv, con
     if (result < minv || result > maxv) {
         if (readManyIteration == NO_INDEX) {
             if (variableName.empty())
+            #ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa,
                      ("Unsigned integer " + vtos(result) + " violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) +
                       "]").c_str());
+            #endif
             else
+            #ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa,
                      ("Unsigned integer parameter [name=" + std::string(variableName) + "] equals to " + vtos(result) +
                       ", violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) + "]").c_str());
+            #endif
         } else {
             if (variableName.empty())
+			#ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa,
                      ("Unsigned integer element [index=" + vtos(readManyIteration) + "] equals to " + vtos(result) +
                       ", violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) + "]").c_str());
+            #endif
             else
+            #ifdef FELADAT
+				quit(_wa, "Hibás válasz");
+			#else
                 quit(_wa, ("Unsigned integer element " + std::string(variableName) + "[" + vtos(readManyIteration) +
                            "] equals to " + vtos(result) + ", violates the range [" + toHumanReadableString(minv) + ", " + toHumanReadableString(maxv) +
                            "]").c_str());
+            #endif
         }
     }
 
