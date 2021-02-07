@@ -2606,7 +2606,7 @@ struct Testcase {
 	std::string Verdict;
 	
 	Testcase(int index, int subtask, int point, std::string verdict) : Index(std::to_string(index)), Subtask(subtask), Point(point), Verdict(verdict) {}
-	Testcase(int subtask, TResult res, std::string verdict) : Index(__testind), Subtask(subtask), Point(1-!res), Verdict(verdict) {}
+	Testcase(int subtask, TResult res, std::string verdict) : Index(__testind), Subtask(subtask), Point(!res), Verdict(verdict) {}
 	
 };
 
@@ -2619,12 +2619,14 @@ std::ostream& operator<<(std::ostream& out, Testcase T) {
 void quit(TResult, const char*);
 template<typename T, typename ... ARGS> 
 void quitfeladat(TResult res, T arg0, ARGS ... args) {
+    if (TestlibFinalizeGuard::alive)
+        testlibFinalizeGuard.quitCount++;
+	
 	std::vector<T> t({arg0, args...});
 	#ifdef FELADAT
 	for(auto i:t) {
 		std::cout<<i;
 	}
-	quit(res, "");
 	#else
 	string verdict;
 	for(auto i:t) verdict+=i.Verdict+"/";
