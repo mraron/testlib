@@ -2615,6 +2615,8 @@ std::ostream& operator<<(std::ostream& out, Testcase T) {
 	return out;
 }
 
+
+void quit(TResult, const char*);
 template<typename T, typename ... ARGS> 
 void quitfeladat(TResult res, T arg0, ARGS ... args) {
 	std::vector<T> t({arg0, args...});
@@ -2622,13 +2624,13 @@ void quitfeladat(TResult res, T arg0, ARGS ... args) {
 	for(auto i:t) {
 		std::cout<<i;
 	}
+	quit(res, "");
 	#else
 	string verdict;
 	for(auto i:t) verdict+=i.Verdict+"/";
 	quit(res, verdict);
 	#endif
 }
-
 
 NORETURN void InStream::quit(TResult result, const char *msg) {
     if (TestlibFinalizeGuard::alive)
