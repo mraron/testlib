@@ -27,36 +27,6 @@
 
 #define VERSION "0.9.34-SNAPSHOT"
 
-struct Testcase {
-	string Index;
-	int Subtask;
-	int Point;
-	string Verdict;
-	
-	Testcase(int index, int subtask, int point, string verdict) : Index(to_string(index)), Subtask(subtask), Point(point), Verdict(verdict) {}
-	Testcase(int subtask, TResult res, string verdict) : Index(__testind), Subtask(subtask), Point(1-!res), Verdict(verdict) {}
-
-};
-
-ostream& operator<<(ostream& out, Testcase T) {
-	out<<T.Index<<";"<<T.Subtask<<";"<<T.Point<<";"<<T.Verdict<<"\n";
-	return out;
-}
-
-template<typename T, typename ... ARGS> 
-void quitfeladat(TResult res, T arg0, ARGS ... args) {
-	vector<T> t({arg0, args...});
-	#ifdef FELADAT
-	for(auto i:t) {
-		cout<<i;
-	}
-	#else
-	string verdict;
-	for(auto i:t) verdict+=i.Verdict+"/";
-	quit(res, verdict);
-	#endif
-}
-
 /* 
  * Mike Mirzayanov
  *
@@ -2625,7 +2595,40 @@ static std::string __testlib_toPrintableMessage(const std::string &message) {
 
 #ifdef FELADAT
 std::string __testind;
+#else
+std::string __testind="-1";
 #endif
+
+struct Testcase {
+	std::string Index;
+	int Subtask;
+	int Point;
+	std::string Verdict;
+	
+	Testcase(int index, int subtask, int point, std::string verdict) : Index(std::to_string(index)), Subtask(subtask), Point(point), Verdict(verdict) {}
+	Testcase(int subtask, TResult res, std::string verdict) : Index(__testind), Subtask(subtask), Point(1-!res), Verdict(verdict) {}
+	
+};
+
+std::ostream& operator<<(std::ostream& out, Testcase T) {
+	out<<T.Index<<";"<<T.Subtask<<";"<<T.Point<<";"<<T.Verdict<<"\n";
+	return out;
+}
+
+template<typename T, typename ... ARGS> 
+void quitfeladat(TResult res, T arg0, ARGS ... args) {
+	std::vector<T> t({arg0, args...});
+	#ifdef FELADAT
+	for(auto i:t) {
+		std::cout<<i;
+	}
+	#else
+	string verdict;
+	for(auto i:t) verdict+=i.Verdict+"/";
+	quit(res, verdict);
+	#endif
+}
+
 
 NORETURN void InStream::quit(TResult result, const char *msg) {
     if (TestlibFinalizeGuard::alive)
