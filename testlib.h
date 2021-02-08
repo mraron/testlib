@@ -2626,8 +2626,9 @@ void quitfeladat(TResult res, T arg0, ARGS ... args) {
 	#ifdef FELADAT
 	bool first=true;
 	for(auto i:t) {
-		if(!first) cout<<":";
+		if(!first) std::cout<<":";
 		std::cout<<i;
+		first=false;
 	}
 	std::cout<<"\n";
 	#else
