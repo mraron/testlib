@@ -2619,9 +2619,9 @@ std::ostream& operator<<(std::ostream& out, Testcase T) {
 void quit(TResult, const char*);
 template<typename T, typename ... ARGS> 
 void quitfeladat(TResult res, T arg0, ARGS ... args) {
-    if (TestlibFinalizeGuard::alive)
+    if (TestlibFinalizeGuard::alive) {
         testlibFinalizeGuard.quitCount++;
-	
+	}
 	std::vector<T> t({arg0, args...});
 	#ifdef FELADAT
 	bool first=true;
@@ -2632,9 +2632,9 @@ void quitfeladat(TResult res, T arg0, ARGS ... args) {
 	}
 	std::cout<<"\n";
 	#else
-	string verdict;
+	std::string verdict;
 	for(auto i:t) verdict+=i.Verdict+"/";
-	quit(res, verdict);
+	quit(res, verdict.c_str());
 	#endif
 }
 
