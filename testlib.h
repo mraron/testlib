@@ -2611,7 +2611,7 @@ struct Testcase {
 };
 
 std::ostream& operator<<(std::ostream& out, Testcase T) {
-	out<<T.Index<<";"<<T.Subtask<<";"<<T.Point<<";"<<T.Verdict<<"\n";
+	out<<T.Index<<";"<<T.Subtask<<";"<<T.Point<<";"<<T.Verdict;
 	return out;
 }
 
@@ -2624,9 +2624,12 @@ void quitfeladat(TResult res, T arg0, ARGS ... args) {
 	
 	std::vector<T> t({arg0, args...});
 	#ifdef FELADAT
+	bool first=true;
 	for(auto i:t) {
+		if(!first) cout<<":";
 		std::cout<<i;
 	}
+	std::cout<<"\n";
 	#else
 	string verdict;
 	for(auto i:t) verdict+=i.Verdict+"/";
