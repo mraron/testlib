@@ -2636,6 +2636,7 @@ void quitfeladat(TResult res, T arg0, ARGS ... args) {
 	for(auto i:t) verdict+=i.Verdict+"/";
 	quit(res, verdict.c_str());
 	#endif
+	exit(0);
 }
 
 NORETURN void InStream::quit(TResult result, const char *msg) {
